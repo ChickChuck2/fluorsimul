@@ -1,5 +1,6 @@
 // DOM Elements
 const startBtn = document.getElementById('start-btn') as HTMLButtonElement;
+const speedBtn = document.getElementById('speed-btn') as HTMLButtonElement;
 const resetBtn = document.getElementById('reset-btn') as HTMLButtonElement;
 const statusText = document.getElementById('status-text') as HTMLDivElement;
 const inputPpmEl = document.getElementById('input-ppm') as HTMLDivElement;
@@ -16,6 +17,13 @@ const resultIndicator = document.getElementById('result-indicator') as SVGCircle
 
 // Estados do Sistema
 let isRunning = false;
+let speedMultiplier = 1; // 1x, 10x, 100x
+
+const REAL_DURATIONS = {
+  STAGE_1: 15 * 60 * 1000, // 15 min
+  STAGE_2: 12 * 60 * 1000, // 12 min
+  TEST: 3 * 60 * 1000    // 3 min
+};
 
 const log = (msg: string) => {
   const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -51,36 +59,38 @@ const runSimulation = async () => {
   setStatus('FILTRANDO...', 'RODANDO');
 
   // Etapa 1: Cal
-  log('Passo 1: Cal adicionada. Removendo o grosso...');
+  log('Passo 1: Cal adicionada. Tempo real estimado: 15 min.');
   flowIntro?.classList.add('active');
   if (liquid1) {
-    liquid1.style.transition = 'height 3s ease-out, y 3s ease-out';
+    liquid1.style.transition = `height ${3000 / speedMultiplier}ms ease-out, y ${3000 / speedMultiplier}ms ease-out`;
     liquid1.setAttribute('height', '180');
     liquid1.setAttribute('y', '170');
   }
-  await animatePpm(50, 10, 2000);
+  await animatePpm(50, 10, REAL_DURATIONS.STAGE_1 / speedMultiplier);
   log('Flúor caiu: 50 -> 10 ppm.');
 
   // Etapa 2: Alumina
-  log('Passo 2: Polimento com Alumina. pH em 6.0.');
+  log('Passo 2: Polimento com Alumina. Tempo real estimado: 12 min.');
   flowStage1_2?.classList.add('active');
   if (liquid2) {
-    liquid2.style.transition = 'height 3s ease-out, y 3s ease-out';
+    liquid2.style.transition = `height ${3000 / speedMultiplier}ms ease-out, y ${3000 / speedMultiplier}ms ease-out`;
     liquid2.setAttribute('height', '180');
     liquid2.setAttribute('y', '170');
   }
-  await animatePpm(10, 0.82, 2500);
+  await animatePpm(10, 0.82, REAL_DURATIONS.STAGE_2 / speedMultiplier);
   log('Água polida! Nível final: 0.82 ppm.');
 
   // Teste Final
   flowOutro?.classList.add('active');
   log('Teste de Qualidade: O Rosa indica que está pura.');
-  await new Promise(r => setTimeout(r, 1500));
+  await new Promise(r => setTimeout(r, (REAL_DURATIONS.TEST / 2) / speedMultiplier));
 
   if (resultIndicator) {
-    resultIndicator.style.transition = 'fill 2s';
+    resultIndicator.style.transition = `fill ${2000 / speedMultiplier}ms`;
     resultIndicator.style.fill = 'var(--spadns-pink)';
   }
+
+  await new Promise(r => setTimeout(r, (REAL_DURATIONS.TEST / 2) / speedMultiplier));
 
   setStatus('PRONTO', 'SUCESSO');
   log('RESULTADO: Água Aprovada (Rosa = Limpa).');
@@ -92,7 +102,7 @@ const runSimulation = async () => {
 const animatePpm = (start: number, end: number, duration: number) => {
   return new Promise(resolve => {
     let current = start;
-    const intervalTime = 100;
+    const intervalTime = Math.max(50, 100 / speedMultiplier);
     const totalSteps = duration / intervalTime;
     const stepValue = (end - start) / totalSteps;
 
@@ -109,6 +119,16 @@ const animatePpm = (start: number, end: number, duration: number) => {
       }
     }, intervalTime);
   });
+};
+
+const toggleSpeed = () => {
+  if (speedMultiplier === 1) speedMultiplier = 10;
+  else if (speedMultiplier === 10) speedMultiplier = 100;
+  else if (speedMultiplier === 100) speedMultiplier = 1000;
+  else speedMultiplier = 1;
+
+  speedBtn.innerText = `ACELERAR (${speedMultiplier}x)`;
+  log(`Velocidade ajustada para ${speedMultiplier}x`);
 };
 
 const resetSystem = () => {
@@ -138,6 +158,7 @@ const resetSystem = () => {
 
 // Event Listeners
 startBtn?.addEventListener('click', runSimulation);
+speedBtn?.addEventListener('click', toggleSpeed);
 resetBtn?.addEventListener('click', resetSystem);
 
 // Init

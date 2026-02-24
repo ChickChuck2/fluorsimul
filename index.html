@@ -38,6 +38,8 @@
 
       <section style="margin-top: auto; display: flex; flex-direction: column; gap: 10px;">
         <button id="start-btn">INICIAR SIMULAÇÃO</button>
+        <button id="speed-btn" class="secondary"
+          style="border-color: var(--warning-color); color: var(--warning-color);">ACELERAR (1x)</button>
         <button id="reset-btn" class="secondary">REINICIAR SISTEMA</button>
       </section>
 
@@ -45,15 +47,6 @@
         style="font-size: 0.7rem; color: var(--text-secondary); background: rgba(0,0,0,0.3); padding: 10px; border-radius: 4px; height: 120px; overflow-y: auto;">
         > Sistema pronto...
       </div>
-
-      <section class="comparison-card">
-        <div class="stat-label">Simulado vs Real</div>
-        <ul style="font-size: 0.7rem; color: var(--text-secondary); padding-left: 15px; margin-top: 5px;">
-          <li><b>Tempo:</b> 20s vs 45min+</li>
-          <li><b>Teste Rosa:</b> Simbólico vs SPADNS Real</li>
-          <li><b>Química:</b> Lógica 100% Real</li>
-        </ul>
-      </section>
     </aside>
 
     <main class="simulation-viewport">
