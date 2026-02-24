@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="./vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulador de Tratamento de Água - Filtro de Flúor</title>
+  <script type="module" crossorigin src="./assets/index-e8QWgL92.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-C0tTzu1x.css">
+</head>
+
+<body>
+  <div id="app">
+    <header>
+      <h1>Sistema de Remoção de Flúor</h1>
+      <div style="display: flex; gap: 20px;">
+        <div class="stat-card" style="min-width: 120px;">
+          <div class="stat-label">Status do Sistema</div>
+          <div id="status-text" class="stat-value" style="font-size: 1rem; color: var(--warning-color);">AGUARDANDO
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <aside class="controls">
+      <section>
+        <div class="stat-label" style="margin-bottom: 8px;">Níveis de Flúor</div>
+        <div class="stat-card">
+          <div class="stat-label">Entrada (Água Suja)</div>
+          <div class="stat-value" id="input-ppm">50.0 <span style="font-size: 0.8rem; font-weight: 400;">ppm</span>
+          </div>
+        </div>
+        <div class="stat-card" style="margin-top: 10px;">
+          <div class="stat-label">Saída (Água Limpa)</div>
+          <div class="stat-value" id="output-ppm">-- <span style="font-size: 0.8rem; font-weight: 400;">ppm</span></div>
+        </div>
+      </section>
+
+      <section style="margin-top: auto; display: flex; flex-direction: column; gap: 10px;">
+        <button id="start-btn">INICIAR SIMULAÇÃO</button>
+        <button id="reset-btn" class="secondary">REINICIAR SISTEMA</button>
+      </section>
+
+      <div id="log"
+        style="font-size: 0.7rem; color: var(--text-secondary); background: rgba(0,0,0,0.3); padding: 10px; border-radius: 4px; height: 120px; overflow-y: auto;">
+        > Sistema pronto...
+      </div>
+
+      <section class="comparison-card">
+        <div class="stat-label">Simulado vs Real</div>
+        <ul style="font-size: 0.7rem; color: var(--text-secondary); padding-left: 15px; margin-top: 5px;">
+          <li><b>Tempo:</b> 20s vs 45min+</li>
+          <li><b>Teste Rosa:</b> Simbólico vs SPADNS Real</li>
+          <li><b>Química:</b> Lógica 100% Real</li>
+        </ul>
+      </section>
+    </aside>
+
+    <main class="simulation-viewport">
+      <!-- SVG Schematic will be manipulated via JS -->
+      <svg class="schematic-svg" viewBox="0 0 800 500">
+        <defs>
+          <linearGradient id="water-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style="stop-color:var(--water-top);stop-opacity:1" />
+            <stop offset="100%" style="stop-color:var(--water-bottom);stop-opacity:1" />
+          </linearGradient>
+
+          <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#58a6ff" />
+          </marker>
+
+          <pattern id="beads-pattern" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
+            <circle cx="5" cy="5" r="3" fill="#ffffff" opacity="0.4" />
+          </pattern>
+        </defs>
+
+        <!-- Labels de Direção -->
+        <g id="flow-labels">
+          <rect x="20" y="215" width="80" height="20" rx="4" fill="rgba(0,0,0,0.5)" />
+          <text x="60" y="230" text-anchor="middle" font-size="10" fill="#58a6ff" font-weight="bold">ENTRADA</text>
+
+          <rect x="700" y="215" width="80" height="20" rx="4" fill="rgba(0,0,0,0.5)" />
+          <text x="740" y="230" text-anchor="middle" font-size="10" fill="#58a6ff" font-weight="bold">SAÍDA</text>
+        </g>
+
+        <!-- Pipes -->
+        <g id="pipes">
+          <path class="pipe" d="M 50 250 L 150 250" />
+          <path class="pipe-inner" d="M 50 250 L 150 250" />
+
+          <path class="pipe" d="M 350 250 L 480 250" />
+          <path class="pipe-inner" d="M 350 250 L 480 250" />
+
+          <path class="pipe" d="M 620 250 L 750 250" />
+          <path class="pipe-inner" d="M 620 250 L 750 250" />
+        </g>
+
+        <!-- Fluxo de Água Animado -->
+        <path id="flow-intro" class="water-flow" d="M 50 250 L 140 250" marker-end="url(#arrowhead)" />
+        <path id="flow-stage1-2" class="water-flow" d="M 350 250 L 470 250" marker-end="url(#arrowhead)" />
+        <path id="flow-outro" class="water-flow" d="M 620 250 L 740 250" marker-end="url(#arrowhead)" />
+
+        <!-- Estágio 1: Béquere de Cal -->
+        <g id="stage-1">
+          <path class="vessel" d="M 150 150 L 150 340 Q 150 350 160 350 L 340 350 Q 350 350 350 340 L 350 150"
+            fill="rgba(48, 54, 61, 0.2)" />
+          <rect id="liquid-1" class="liquid" x="151" y="350" width="198" height="0" rx="2" />
+          <text x="250" y="130" text-anchor="middle" class="component-label" font-weight="bold">Etapa 1: Filtro de
+            Cal</text>
+
+          <g transform="translate(210, 160)">
+            <rect x="0" y="5" width="80" height="20" rx="2" fill="#30363d" />
+            <path d="M 10 15 L 70 15" stroke="#8b949e" stroke-width="2" stroke-dasharray="2 2" />
+            <text x="40" y="0" text-anchor="middle" font-size="9" fill="#8b949e">Dosador (Cal)</text>
+          </g>
+        </g>
+
+        <!-- Estágio 2: Coluna de Alumina -->
+        <g id="stage-2">
+          <rect class="vessel" x="480" y="120" width="140" height="230" rx="10" fill="rgba(48, 54, 61, 0.2)" />
+          <rect id="liquid-2" class="liquid" x="481" y="350" width="138" height="0" rx="2" />
+
+          <rect x="520" y="130" width="60" height="210" rx="5" fill="url(#beads-pattern)"
+            stroke="rgba(255,255,255,0.2)" />
+          <text x="550" y="110" text-anchor="middle" class="component-label" font-weight="bold">Etapa 2: Alumina
+            Ativada</text>
+        </g>
+
+        <!-- Teste Final -->
+        <g id="indicator-group" transform="translate(760, 250)">
+          <circle id="result-indicator" cx="0" cy="0" r="20" fill="rgba(48, 54, 61, 0.5)" stroke="var(--glass-border)"
+            stroke-width="2" />
+          <text x="0" y="40" text-anchor="middle" font-size="10" fill="var(--text-secondary)">Rosa = Limpa</text>
+        </g>
+      </svg>
+    </main>
+  </div>
+</body>
+
+</html>
