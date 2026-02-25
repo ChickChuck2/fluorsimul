@@ -6,8 +6,8 @@
   <link rel="icon" type="image/svg+xml" href="./vite.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Simulador de Tratamento de Água - Filtro de Flúor</title>
-  <script type="module" crossorigin src="./assets/index-Bfraxx24.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-Co1iI0fB.css">
+  <script type="module" crossorigin src="./assets/index-BHIgD3yK.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-CRMljQLA.css">
 </head>
 
 <body>
@@ -39,12 +39,33 @@
           <div class="stat-label">Saída (Água Limpa)</div>
           <div class="stat-value" id="output-ppm">-- <span style="font-size: 0.8rem; font-weight: 400;">ppm</span></div>
         </div>
+        <div class="stat-card" style="margin-top: 10px; border-color: rgba(255, 105, 180, 0.2);">
+          <div class="stat-label">Vida Útil do Filtro</div>
+          <div id="filter-status" class="stat-value" style="font-size: 1rem;">EFICIENTE (100%)</div>
+        </div>
+      </section>
+
+      <section id="impact-section">
+        <div class="stat-label" style="margin-bottom: 8px;">Impacto e Custo</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="stat-card">
+            <div class="stat-label">Volume</div>
+            <div id="total-volume" class="stat-value" style="font-size: 0.9rem;">0 L</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Custo</div>
+            <div id="total-cost" class="stat-value" style="font-size: 0.9rem;">R$ 0,00</div>
+          </div>
+        </div>
       </section>
 
       <section style="margin-top: auto; display: flex; flex-direction: column; gap: 10px;">
         <button id="start-btn">INICIAR SIMULAÇÃO</button>
         <button id="speed-btn" class="secondary"
           style="border-color: var(--warning-color); color: var(--warning-color);">ACELERAR (1x)</button>
+        <button id="regen-btn" class="secondary"
+          style="display: none; border-color: var(--spadns-pink); color: var(--spadns-pink);">REGENERAR FILTRO
+          (NaOH)</button>
         <button id="reset-btn" class="secondary">REINICIAR SISTEMA</button>
       </section>
 
@@ -108,6 +129,9 @@
             <path d="M 10 15 L 70 15" stroke="#8b949e" stroke-width="2" stroke-dasharray="2 2" />
             <text x="40" y="0" text-anchor="middle" font-size="9" fill="#8b949e">Dosador (Cal)</text>
           </g>
+
+          <!-- Partículas de Precipitação -->
+          <g id="particles-group"></g>
         </g>
 
         <!-- Estágio 2: Coluna de Alumina -->
@@ -137,6 +161,12 @@
           <text x="0" y="40" text-anchor="middle" font-size="10" fill="var(--text-secondary)">Rosa = Limpa</text>
         </g>
       </svg>
+
+      <!-- Gráfico de Evolução -->
+      <div id="graph-container">
+        <div class="stat-label" style="position: absolute; top: 10px; left: 15px;">Monitoramento de PPM</div>
+        <canvas id="ppm-chart"></canvas>
+      </div>
     </main>
   </div>
 </body>
