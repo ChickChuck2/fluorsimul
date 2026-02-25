@@ -14,14 +14,22 @@
   <div id="app">
     <header>
       <h1>Planta Técnica: Remoção de Fluoreto</h1>
-      <div style="display: flex; gap: 20px;">
-        <div class="stat-card" style="min-width: 140px; border-color: var(--accent-color);">
-          <div class="stat-label">Monitoramento pH Online</div>
-          <div id="ph-display" class="stat-value" style="color: var(--accent-color);">7.00</div>
+      <div style="display: flex; gap: 15px; align-items: center;">
+        <div style="text-align: right;">
+          <div id="status-text"
+            style="font-size: 0.7rem; font-weight: 800; color: var(--warning-color); letter-spacing: 1px;">SISTEMA:
+            AGUARDANDO</div>
+          <div id="timer-text"
+            style="font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; color: var(--accent-color);">30:15</div>
         </div>
-        <div class="stat-card" style="min-width: 120px;">
-          <div class="stat-label">Fluoreto Saída</div>
-          <div id="output-ppm-main" class="stat-value" style="color: var(--text-secondary);">-- ppm</div>
+        <div class="stat-card" style="min-width: 140px; border-color: var(--accent-color); padding: 5px 12px;">
+          <div class="stat-label">pH Online</div>
+          <div id="ph-display" class="stat-value" style="color: var(--accent-color); font-size: 1.1rem;">7.00</div>
+        </div>
+        <div class="stat-card" style="min-width: 110px; padding: 5px 12px;">
+          <div class="stat-label">Saída F-</div>
+          <div id="output-ppm-main" class="stat-value" style="color: var(--text-secondary); font-size: 1.1rem;">-- ppm
+          </div>
         </div>
       </div>
     </header>
@@ -48,7 +56,6 @@
         <div class="stat-label">Vida Útil do Filtro</div>
         <div id="filter-status" class="stat-value" style="font-size: 1rem;">EFICIENTE (100%)</div>
       </div>
-      </section>
 
       <section id="impact-section">
         <div class="stat-label" style="margin-bottom: 8px;">Impacto e Custo</div>
