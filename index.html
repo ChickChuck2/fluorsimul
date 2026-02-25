@@ -6,8 +6,8 @@
   <link rel="icon" type="image/svg+xml" href="./vite.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Simulador de Tratamento de Água - Filtro de Flúor</title>
-  <script type="module" crossorigin src="./assets/index-C4YzKPS-.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-CRMljQLA.css">
+  <script type="module" crossorigin src="./assets/index-BvQh9VJ7.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-jXmHE9bT.css">
 </head>
 
 <body>
@@ -148,7 +148,13 @@
         <g id="stage-1">
           <path class="vessel" d="M 150 150 L 150 340 Q 150 350 160 350 L 340 350 Q 350 350 350 340 L 350 150"
             fill="rgba(48, 54, 61, 0.2)" />
+          <rect id="sludge-1" x="151" y="350" width="198" height="0" rx="2" fill="#8b949e" opacity="0.6"
+            style="transition: height 10s linear, y 10s linear;" />
           <rect id="liquid-1" class="liquid" x="151" y="350" width="198" height="0" rx="2" />
+
+          <!-- Ripple effect during fill -->
+          <ellipse id="ripple-1" cx="250" cy="350" rx="40" ry="5" fill="none" stroke="rgba(255,255,255,0.3)"
+            stroke-width="1" class="ripple" />
           <text x="250" y="110" text-anchor="middle" class="component-label" font-weight="bold">1. Precipitação
             (Cal)</text>
           <text x="250" y="125" text-anchor="middle" font-size="9" fill="var(--warning-color)">pH Setpoint: 10.5</text>
@@ -168,6 +174,9 @@
           <rect class="vessel" x="480" y="120" width="140" height="230" rx="10" fill="rgba(48, 54, 61, 0.2)" />
           <rect id="liquid-2" class="liquid" x="481" y="350" width="138" height="0" rx="2" />
 
+          <ellipse id="ripple-2" cx="550" cy="350" rx="30" ry="4" fill="none" stroke="rgba(255,255,255,0.3)"
+            stroke-width="1" class="ripple" />
+
           <rect x="520" y="130" width="60" height="210" rx="5" fill="url(#beads-pattern)"
             stroke="rgba(255,255,255,0.2)" />
           <text x="550" y="95" text-anchor="middle" class="component-label" font-weight="bold">2. Adsorção
@@ -180,8 +189,21 @@
           <path class="vessel" d="M 760 200 L 760 340 Q 760 350 770 350 L 910 350 Q 920 350 920 340 L 920 200"
             fill="rgba(48, 54, 61, 0.2)" />
           <rect id="liquid-3" class="liquid" x="761" y="350" width="158" height="0" rx="2" />
+
+          <ellipse id="ripple-3" cx="840" cy="350" rx="40" ry="5" fill="none" stroke="rgba(255,255,255,0.3)"
+            stroke-width="1" class="ripple" />
           <text x="840" y="180" text-anchor="middle" class="component-label" font-weight="bold">Saída de Água
             Limpa</text>
+        </g>
+
+        <!-- Water Jets (Cascades) -->
+        <g id="cascades">
+          <path id="cascade-1" d="M 140 250 L 140 345" stroke="#58a6ff" stroke-width="4" stroke-dasharray="10 5"
+            class="water-cascade" />
+          <path id="cascade-2" d="M 480 250 L 480 345" stroke="#58a6ff" stroke-width="4" stroke-dasharray="10 5"
+            class="water-cascade" />
+          <path id="cascade-3" d="M 760 250 L 760 345" stroke="#58a6ff" stroke-width="4" stroke-dasharray="10 5"
+            class="water-cascade" />
         </g>
 
         <!-- Teste Final -->
