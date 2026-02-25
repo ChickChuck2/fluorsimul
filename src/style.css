@@ -27,19 +27,19 @@ body {
   color: var(--text-primary);
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   min-height: 100vh;
-  overflow: hidden;
+  padding: 20px 0;
 }
 
 #app {
   width: 95vw;
-  height: 90vh;
+  max-width: 1400px;
   display: grid;
-  grid-template-columns: 300px 1fr;
-  grid-template-rows: 80px 1fr;
+  grid-template-columns: 320px 1fr;
+  grid-template-rows: auto 1fr;
   gap: 20px;
-  padding: 20px;
+  padding: 0 20px;
 }
 
 header {
@@ -50,8 +50,11 @@ header {
   border-radius: 12px;
   display: flex;
   align-items: center;
-  padding: 0 24px;
+  padding: 20px 24px;
   justify-content: space-between;
+  min-height: 80px;
+  flex-wrap: wrap;
+  gap: 15px;
 }
 
 .controls {
@@ -64,6 +67,7 @@ header {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  height: min-content;
 }
 
 .simulation-viewport {
@@ -73,10 +77,27 @@ header {
   border: 1px solid var(--glass-border);
   border-radius: 12px;
   position: relative;
-  overflow: hidden;
+  overflow: auto;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: flex-start;
   align-items: center;
+  min-height: 800px;
+  padding: 20px;
+  gap: 20px;
+}
+
+@media (max-width: 1024px) {
+  #app {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+  }
+
+  header,
+  .controls,
+  .simulation-viewport {
+    grid-column: 1;
+  }
 }
 
 h1 {
@@ -225,4 +246,44 @@ button.secondary {
   border-radius: 50%;
   display: inline-block;
   margin-right: 8px;
+}
+
+#graph-container {
+  width: 100%;
+  height: 200px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  position: relative;
+  padding-top: 30px;
+}
+
+canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.precipitate-particle {
+  fill: #ffffff;
+  opacity: 0.6;
+}
+
+@keyframes precipitate {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 0.8;
+  }
+
+  90% {
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: translateY(120px) scale(0.5);
+    opacity: 0.2;
+  }
 }
