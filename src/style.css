@@ -219,48 +219,7 @@ button.secondary {
 
 .liquid {
   fill: url(#water-gradient);
-  transition: height 3s ease-in-out, y 3s ease-in-out, fill 2s;
-}
-
-.bead {
-  fill: #f0f0f0;
-  stroke: #ccc;
-  stroke-width: 0.5;
-}
-
-.comparison-card {
-  background: rgba(88, 166, 255, 0.05);
-  border: 1px solid rgba(88, 166, 255, 0.1);
-  padding: 12px;
-  border-radius: 8px;
-  margin-top: 10px;
-}
-
-.comparison-card li {
-  margin-bottom: 4px;
-}
-
-.alert-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  display: inline-block;
-  margin-right: 8px;
-}
-
-#graph-container {
-  width: 100%;
-  height: 200px;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid var(--glass-border);
-  border-radius: 8px;
-  position: relative;
-  padding-top: 30px;
-}
-
-canvas {
-  width: 100%;
-  height: 100%;
+  transition: height 1s linear, y 1s linear;
 }
 
 .precipitate-particle {
@@ -285,5 +244,52 @@ canvas {
   100% {
     transform: translateY(120px) scale(0.5);
     opacity: 0.2;
+  }
+}
+
+.water-cascade {
+  opacity: 0;
+  stroke: #58a6ff;
+  stroke-dashoffset: 100;
+  animation: flowLine 1s linear infinite;
+  transition: opacity 0.3s;
+}
+
+.water-cascade.active {
+  opacity: 1;
+}
+
+@keyframes flowLine {
+  from {
+    stroke-dashoffset: 30;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.ripple {
+  opacity: 0;
+  transform-origin: center;
+  transition: opacity 0.3s;
+}
+
+.ripple.active {
+  opacity: 1;
+  animation: rippleAnim 1.5s ease-out infinite;
+}
+
+@keyframes rippleAnim {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.8;
+    stroke-width: 1;
+  }
+
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+    stroke-width: 0.5;
   }
 }

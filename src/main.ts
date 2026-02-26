@@ -7,7 +7,7 @@ const timerText = document.getElementById('timer-text') as HTMLDivElement;
 const phDisplay = document.getElementById('ph-display') as HTMLDivElement;
 const outputPpmMain = document.getElementById('output-ppm-main') as HTMLDivElement;
 const flowRateEl = document.getElementById('flow-rate') as HTMLDivElement;
-const turbidityEl = document.getElementById('turbidity-val') as HTMLDivElement;
+// const turbidityEl = document.getElementById('turbidity-val') as HTMLDivElement;
 const interlockEl = document.getElementById('interlock-status') as HTMLDivElement;
 
 // SVG Elements
@@ -26,6 +26,17 @@ const particlesGroup = document.getElementById('particles-group') as SVGGElement
 const canvas = document.getElementById('ppm-chart') as HTMLCanvasElement;
 const ctx = canvas.getContext('2d');
 
+// Novos Elementos Hidráulicos
+const sludge1 = document.getElementById('sludge-1') as SVGRectElement | null;
+const cascade1 = document.getElementById('cascade-1') as SVGPathElement | null;
+const cascade2 = document.getElementById('cascade-2') as SVGPathElement | null;
+const cascade3 = document.getElementById('cascade-3') as SVGPathElement | null;
+const ripple1 = document.getElementById('ripple-1') as SVGEllipseElement | null;
+const ripple2 = document.getElementById('ripple-2') as SVGEllipseElement | null;
+const ripple3 = document.getElementById('ripple-3') as SVGEllipseElement | null;
+const stopTop = document.getElementById('stop-top') as SVGStopElement | null;
+const stopBottom = document.getElementById('stop-bottom') as SVGStopElement | null;
+
 // Estados do Sistema
 let isRunning = false;
 let speedMultiplier = 1;
@@ -40,7 +51,8 @@ let totalCost = 0;
 let chartData: { x: number, y: number }[] = [];
 
 const REAL_DURATIONS = {
-  INTRO: 5 * 1000,          // 5s de entrada
+  PIPE_FLOW: 2 * 1000,      // Tempo da água correndo no tubo (novo)
+  INTRO: 5 * 1000,          // 5s de entrada (enchimento)
   STAGE_1: 15 * 60 * 1000,  // 15 min
   TRANS_1_2: 5 * 1000,      // 5s transferência
   STAGE_2: 12 * 60 * 1000,  // 12 min
@@ -59,14 +71,36 @@ const updatePpmDisplay = (output: number | null) => {
   if (output !== null) {
     outputPpmMain.innerText = `${output.toFixed(2)} ppm`;
     outputPpmMain.style.color = output < 1.5 ? 'var(--fluoride-low)' : 'var(--fluoride-high)';
+    updateWaterColor(output);
   } else {
     outputPpmMain.innerText = `-- ppm`;
     outputPpmMain.style.color = 'inherit';
   }
 };
 
+const updateWaterColor = (ppm: number) => {
+  if (!stopTop || !stopBottom) return;
+
+  // Interpolação entre Marrom (50ppm) e Azul (0ppm)
+  // Suja: HSL(30, 40%, 30%) -> Limpa: HSL(210, 100%, 67%)
+  const ratio = Math.max(0, Math.min(1, ppm / 50));
+
+  const h = 210 - (ratio * 180); // 210 - 180 = 30
+  const s = 100 - (ratio * 60);  // 100 - 60 = 40
+  const l = 67 - (ratio * 37);   // 67 - 37 = 30
+
+  const color = `hsl(${h}, ${s}%, ${l}%)`;
+  const darkerColor = `hsl(${h}, ${s}%, ${l - 15}%)`;
+
+  stopTop.setAttribute('style', `stop-color: ${color}; stop-opacity: 1`);
+  stopBottom.setAttribute('style', `stop-color: ${darkerColor}; stop-opacity: 1`);
+};
+
 const updatePhDisplay = (ph: number) => {
-  phDisplay.innerText = ph.toFixed(2);
+  // Simular jitter de sensor real (pequena oscilação)
+  const jitter = (Math.random() - 0.5) * 0.04;
+  const displayPh = ph + jitter;
+  phDisplay.innerText = displayPh.toFixed(2);
   phDisplay.style.color = (ph >= 5.5 && ph <= 6.5) ? 'var(--fluoride-low)' :
     (ph > 10) ? 'var(--warning-color)' : 'var(--accent-color)';
 };
@@ -192,9 +226,14 @@ const runSimulation = async () => {
       if (liquid3) liquid3.style.transition = `height ${duration}ms linear, y ${duration}ms linear`;
     };
 
-    // Etapa 1: Cal (Precipitação Primária)
-    log('ETAPA 1: Dosagem de Cal Hidratada. Setpoint pH 10.5.');
+    // Etapa 1: Água Bruta -> Cal (SEQUENCIAL)
+    log('ETAPA 1: Água bruta correndo pela tubulação...');
     flowIntro?.classList.add('active');
+    await smartWait(REAL_DURATIONS.PIPE_FLOW, simId); // Aguarda água chegar no béquere
+
+    log('Dosando Cal Hidratada. Setpoint pH 10.5.');
+    cascade1?.classList.add('active');
+    ripple1?.classList.add('active');
     spawnParticles(true);
     updateVesselSpeed();
     if (liquid1) {
@@ -202,31 +241,43 @@ const runSimulation = async () => {
       liquid1.setAttribute('y', '170');
     }
 
-    // Sobe o pH para precipitação
+    // Sobe o pH para precipitação (com delay/transitório)
     await animatePh(7.0, 10.5, REAL_DURATIONS.INTRO, simId);
-    await smartWait(1000, simId);
+    cascade1?.classList.remove('active');
+    ripple1?.classList.remove('active');
     flowIntro?.classList.remove('active');
 
     // Precipitação química (F- cai de 50 para 10)
+    // Acúmulo de lodo proporcional ao decaimento
+    if (sludge1) {
+      sludge1.style.transition = `height ${REAL_DURATIONS.STAGE_1 / speedMultiplier}ms linear, y ${REAL_DURATIONS.STAGE_1 / speedMultiplier}ms linear`;
+      sludge1.setAttribute('height', '30');
+      sludge1.setAttribute('y', '320');
+    }
     await animatePpm(50, 10, REAL_DURATIONS.STAGE_1, simId);
     if (currentSimId !== simId) return;
     spawnParticles(false);
-    log('Precipitação concluída: Flúor caiu para 10 ppm.');
-    turbidityEl.innerText = '0.08 NTU';
+    log('Precipitação concluída: Lodo sedimentado no fundo.');
 
-    // ETAPA INTERMEDIÁRIA: Ajuste de pH Crítico (Ácido)
-    log('ETAPA CRÍTICA: Ajustando pH para 5.8 via Dosador de Ácido.');
+    // ETAPA INTERMEDIÁRIA: Cal -> Alumina (SEQUENCIAL)
+    log('Transferindo e dosando Ácido...');
     flowStage1_2?.classList.add('active');
     updateVesselSpeed();
     if (liquid1) { liquid1.setAttribute('height', '0'); liquid1.setAttribute('y', '350'); }
+    await smartWait(REAL_DURATIONS.PIPE_FLOW, simId); // Aguarda água chegar no béquere
+
+    cascade2?.classList.add('active');
+    ripple2?.classList.add('active');
     if (liquid2) { liquid2.setAttribute('height', '180'); liquid2.setAttribute('y', '170'); }
 
     // PID simulado descendo o pH
     await animatePh(10.5, 5.8, REAL_DURATIONS.TRANS_1_2, simId);
     interlockEl.style.borderColor = 'var(--success-color)';
     interlockEl.querySelector('.stat-value')!.textContent = 'SISTEMA SEGURO';
+    cascade2?.classList.remove('active');
+    ripple2?.classList.remove('active');
     flowStage1_2?.classList.remove('active');
-    log('Monitoramento Etapa 5: pH estabilizado em 5.8. Alumina segura.');
+    log('Monitoramento Etapa 5: Condição ótima (pH 5.8) atingida.');
 
     // Etapa 2: Alumina (Adsorção / Polimento)
     log('ETAPA 2: Adsorção por Alumina Ativada. EBCT: 6 min.');
@@ -236,13 +287,19 @@ const runSimulation = async () => {
     await animatePpm(10, targetPpm, REAL_DURATIONS.STAGE_2, simId);
     if (currentSimId !== simId) return;
 
-    // Etapa 3: Transferência Final
-    log('Transferindo água tratada para reservatório final.');
+    // Etapa 3: Alumina -> Reservatório (SEQUENCIAL)
+    log('Tratamento concluído. Direcionando para reservatório.');
     flowOutro?.classList.add('active');
     updateVesselSpeed();
     if (liquid2) { liquid2.setAttribute('height', '0'); liquid2.setAttribute('y', '350'); }
+    await smartWait(REAL_DURATIONS.PIPE_FLOW, simId);
+
+    cascade3?.classList.add('active');
+    ripple3?.classList.add('active');
     if (liquid3) { liquid3.setAttribute('height', '150'); liquid3.setAttribute('y', '200'); }
     await smartWait(REAL_DURATIONS.TRANS_2_3, simId);
+    cascade3?.classList.remove('active');
+    ripple3?.classList.remove('active');
     flowOutro?.classList.remove('active');
 
     // Finalização e Teste SPADNS
@@ -297,8 +354,12 @@ const animatePpm = (start: number, end: number, totalMs: number, simId: number) 
       }
 
       elapsedMs += intervalTime * speedMultiplier;
-      const progress = Math.min(1, elapsedMs / totalMs);
-      const current = start + (end - start) * progress;
+
+      // Isoterma de Adsorção Não-Linear: progress^0.7 (rápido no início, lento no fim)
+      const rawProgress = Math.min(1, elapsedMs / totalMs);
+      const curvedProgress = Math.pow(rawProgress, 0.7);
+
+      const current = start + (end - start) * curvedProgress;
 
       updatePpmDisplay(current);
 
@@ -307,7 +368,7 @@ const animatePpm = (start: number, end: number, totalMs: number, simId: number) 
       chartData.push({ x: timePassed, y: current });
       drawChart();
 
-      if (progress >= 1) {
+      if (rawProgress >= 1) {
         clearInterval(interval);
         updatePpmDisplay(end);
         resolve(true);
@@ -369,6 +430,7 @@ const resetSystem = () => {
 
   updatePhDisplay(7.0);
   updatePpmDisplay(null);
+  updateWaterColor(50); // Reset para água suja
   flowRateEl.innerText = '0.0 m³/h';
 
   if (timerInterval) clearInterval(timerInterval);
@@ -382,8 +444,7 @@ const resetSystem = () => {
   interlockEl.style.borderColor = 'var(--glass-border)';
   interlockEl.querySelector('.stat-value')!.textContent = 'SISTEMA SEGURO';
 
-  // Reset SVG
-  [liquid1, liquid2, liquid3].forEach(l => {
+  [liquid1, liquid2, liquid3, sludge1].forEach(l => {
     if (l) {
       l.style.transition = 'none';
       l.setAttribute('height', '0');
@@ -391,7 +452,7 @@ const resetSystem = () => {
     }
   });
 
-  [flowIntro, flowStage1_2, flowOutro].forEach(f => f?.classList.remove('active'));
+  [flowIntro, flowStage1_2, flowOutro, cascade1, cascade2, cascade3, ripple1, ripple2, ripple3].forEach(f => f?.classList.remove('active'));
 
   if (resultIndicator) {
     resultIndicator.style.fill = 'rgba(48, 54, 61, 0.5)';
@@ -415,4 +476,5 @@ regenBtn?.addEventListener('click', regenFilter);
 // Init
 canvas.width = canvas.offsetWidth;
 canvas.height = canvas.offsetHeight;
+updateWaterColor(50); // Inicia com água bruta suja
 console.log('Simulation ready.');
