@@ -44,3 +44,7 @@ Este simulador é **didático**. Embora os conceitos sejam baseados em engenhari
 ## ♿ Acessibilidade
 
 O projeto utiliza semântica HTML5 (`main`, `aside`, `section`), rótulos ARIA para elementos dinâmicos e suporte total a navegação por teclado com estados de foco visíveis.
+
+---
+
+Desenvolvido por **Carlos Silva (ChickChuck2)**.
