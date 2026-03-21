@@ -1,0 +1,16 @@
+:root {
+  --bg-color: #0d1117;
+  --panel-bg: rgba(22, 27, 34, 0.8);
+  --accent-color: #58a6ff;
+  --success-color: #238636;
+  --danger-color: #da3633;
+  --warning-color: #d29922;
+  --text-primary: #c9d1d9;
+  --text-secondary: #8b949e;
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --fluoride-high: #f85149;
+  --fluoride-low: #3fb950;
+  --spadns-pink: #ff69b4;
+  --water-top: #58a6ff;
+  --water-bottom: #0969da;
+}

@@ -1,0 +1,139 @@
+.schematic-svg {
+  width: 90%;
+  height: 80%;
+}
+
+.pipe {
+  fill: none;
+  stroke: #30363d;
+  stroke-width: 14;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.pipe-inner {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.05);
+  stroke-width: 10;
+  stroke-linecap: round;
+}
+
+.water-flow {
+  fill: none;
+  stroke: url(#water-gradient);
+  stroke-width: 8;
+  stroke-dasharray: 10, 20;
+  animation: flow 1s linear infinite;
+  opacity: 0;
+  filter: drop-shadow(0 0 5px var(--water-top));
+}
+
+.water-flow.active {
+  opacity: 0.8;
+}
+
+@keyframes flow {
+  from {
+    stroke-dashoffset: 30;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.component-label {
+  font-size: 12px;
+  fill: var(--text-secondary);
+  font-weight: 500;
+}
+
+.vessel {
+  fill: rgba(48, 54, 61, 0.4);
+  stroke: rgba(255, 255, 255, 0.1);
+  stroke-width: 2;
+}
+
+.liquid {
+  fill: url(#water-gradient);
+}
+
+.precipitate-particle {
+  fill: #ffffff;
+  opacity: 0.6;
+}
+
+@keyframes precipitate {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  90% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(120px) scale(0.5);
+    opacity: 0.2;
+  }
+}
+
+.water-cascade {
+  opacity: 0;
+  stroke: #58a6ff;
+  stroke-dashoffset: 100;
+  animation: flowLine 1s linear infinite;
+  transition: opacity 0.3s;
+}
+
+.water-cascade.active {
+  opacity: 1;
+}
+
+@keyframes flowLine {
+  from {
+    stroke-dashoffset: 30;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.ripple {
+  opacity: 0;
+  transform-origin: center;
+  transition: opacity 0.3s;
+}
+
+.ripple.active {
+  opacity: 1;
+  animation: rippleAnim 1.5s ease-out infinite;
+}
+
+@keyframes rippleAnim {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.8;
+    stroke-width: 1;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+    stroke-width: 0.5;
+  }
+}
+
+#graph-container {
+  width: 100%;
+  height: 200px;
+  position: relative;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  border: 1px solid var(--glass-border);
+}
+
+#ppm-chart {
+  width: 100%;
+  height: 100%;
+}
